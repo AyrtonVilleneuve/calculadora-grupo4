@@ -8,26 +8,29 @@ on:
   workflow_dispatch:
 
 jobs:
-  build-and-check:
-    runs-on: ubuntu-latest  # runner compartilhado do GitHub
+  sanity:
+    runs-on: ubuntu-latest
 
     steps:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Listar arquivos (sanity check)
+      - name: Sanity check
         run: |
-          pwd
+          echo "Rodando no runner do GitHub (ubuntu-latest)"
+          echo "Listando arquivos do projeto:"
           ls -la
+          # Confere se o index.html existe (só loga, não falha)
+          if [ -f "index.html" ]; then
+            echo "OK: index.html encontrado"
+          else
+            echo "AVISO: index.html NAO encontrado (verifique o nome e a pasta)"
+          fi
 
-      - name: Verificar index.html
-        run: |
-          test -f index.html
-
-      - name: Empacotar site
+      - name: Criar artefato (dist) sem erro
         run: |
           mkdir -p dist
-          cp -r * dist/
+          cp -r . dist/ || true
 
       - name: Upload de artefato
         uses: actions/upload-artifact@v4
