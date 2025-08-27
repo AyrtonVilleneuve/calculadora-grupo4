@@ -1,0 +1,36 @@
+name: CI
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+  workflow_dispatch:
+
+jobs:
+  build-and-check:
+    runs-on: ubuntu-latest  # runner compartilhado do GitHub
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Listar arquivos (sanity check)
+        run: |
+          pwd
+          ls -la
+
+      - name: Verificar index.html
+        run: |
+          test -f index.html
+
+      - name: Empacotar site
+        run: |
+          mkdir -p dist
+          cp -r * dist/
+
+      - name: Upload de artefato
+        uses: actions/upload-artifact@v4
+        with:
+          name: site
+          path: dist
