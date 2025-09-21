@@ -1,0 +1,12 @@
+{
+  "name": "calculadora-grupo4",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "test": "jest --ci --coverage --passWithNoTests"
+  },
+  "devDependencies": {
+    "jest": "^29.7.0"
+  },
+  "type": "commonjs"
+}
