@@ -1,39 +1,52 @@
-name: CI
+name: CI-CD
 
 on:
   push:
     branches: [ "main" ]
-  pull_request:
-    branches: [ "main" ]
-  workflow_dispatch:
+  workflow_dispatch: {}   # permite rodar manualmente pelo botão "Run workflow"
 
 jobs:
-  sanity:
+  test:
+    name: Run unit tests
     runs-on: ubuntu-latest
-
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Sanity check
-        run: |
-          echo "Rodando no runner do GitHub (ubuntu-latest)"
-          echo "Listando arquivos do projeto:"
-          ls -la
-          # Confere se o index.html existe (só loga, não falha)
-          if [ -f "index.html" ]; then
-            echo "OK: index.html encontrado"
-          else
-            echo "AVISO: index.html NAO encontrado (verifique o nome e a pasta)"
-          fi
-
-      - name: Criar artefato (dist) sem erro
-        run: |
-          mkdir -p dist
-          cp -r . dist/ || true
-
-      - name: Upload de artefato
-        uses: actions/upload-artifact@v4
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
         with:
-          name: site
-          path: dist
+          node-version: 20
+      - name: Install dependencies
+        run: npm ci || npm install
+      - name: Run tests
+        run: npm test
+
+  build_push:
+    name: Build and push Docker image
+    needs: test                 # só executa se os testes passarem
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Login to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Build & Push
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          push: true
+          tags: ${{ secrets.DOCKERHUB_USERNAME }}/calculadora-grupo4:latest
+
+      - name: Cleanup
+        run: docker image prune -af
+
+  deploy:
+    name: Deploy (manual)
+    needs: build_push
+    runs-on: ubuntu-latest
+    if: ${{ github.event_name == 'workflow_dispatch' }}   # só roda se você clicar em "Run workflow"
+    steps:
+      - name: Placeholder deploy
+        run: echo "Aqui entraria o comando de deploy manual (Render Deploy Hook)"
