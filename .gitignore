@@ -1,0 +1,33 @@
+@"
+# --- Dependências ---
+node_modules/
+
+# --- Cobertura de testes / relatórios ---
+coverage/
+*.lcov
+
+# --- Builds / artefatos ---
+dist/
+build/
+.tmp/
+
+# --- Logs ---
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+*.log
+
+# --- Ambientes ---
+.env
+.env.*
+!.env.example
+
+# --- Editor/IDE ---
+.vscode/
+.idea/
+
+# --- Sistema Operacional ---
+.DS_Store
+Thumbs.db
+"@ | Set-Content -Encoding UTF8 .gitignore
